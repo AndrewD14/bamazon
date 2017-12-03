@@ -153,3 +153,6 @@ var pickMainOption = function(){
 		});
 	}
 }
+
+//exports the function for other files to use
+module.exports = {enterApp: enterApp};
