@@ -110,6 +110,49 @@ exports.logIn = function(values){
 	});
 }
 
+//sign up to use app
+exports.addCustomer = function(values){
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if (error) return reject(error);
+
+			connection.beginTransaction(function(error){
+				if(error) reject(error);
+
+				var sql = "INSERT INTO users (login_id, f_name, l_name, password) VALUES (?,?,?,?)";
+				connection.query(mysql.format(sql, values), function(error, data){
+					if(error){
+						connection.rollback(function(){});
+						connection.release();
+						return reject(error);
+					}
+
+					var user_id = data.insertId;
+					var role_sql = "INSERT INTO user_role (user_id, role_id) VALUES (?,?)";
+					connection.query(mysql.format(role_sql, [user_id, 1]), function(error, data){
+						if(error){
+							connection.rollback(function(){});
+							connection.release();
+							return reject(error);
+						}
+
+						connection.commit(function(error){
+							if(error){
+								connection.rollback(function(){});
+								connection.release();
+								return reject(error);
+							}
+						});
+
+						connection.release();
+						return resolve("User was added.");
+					});
+				});
+			});
+		});
+	});
+}
+
 //closes the pool
 exports.closeConnection = function(){
 	pool.end(function (err) {
