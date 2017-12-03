@@ -95,3 +95,67 @@ function validateForNumber(amount){
 	else
 		return false || "Amount should be a whole number!";
 }
+
+//finalizes the order
+var insertOrder = function(connection, order, userId){
+	var subTotal = 0;
+	console.log("Current Order");
+	console.log("Product\t\tPrice\t\tAmount\t\tProduct Total");
+	for(i in order){
+		var item_total = order[i].amount*order[i].price;
+		subTotal+= item_total;
+
+		console.log(order[i].name+"\t\t"+order[i].price+"\t\t"+order[i].amount+"\t\t"+item_total);
+	}
+	console.log("Order Subtotal: "+subTotal);
+
+	validateQuantity(connection, 0, order, userId);
+}
+
+//function to check the quantity and flag if the order can be placed or has to be put on backorder
+function validateQuantity(connection, index, order, userId){
+	if(index < order.length){
+		connection.getSpecificProduct(order[index].id)
+		.then(function(item){
+			if(item.stock >= order[index].amount){
+				order[index].status = true;
+				order[index].stock = item.stock;
+			}
+			else
+				order[index].status = false;
+
+			
+			validateQuantity(connection, index+1, order, userId);
+		});
+	}
+	else{
+		var orderStatus = "Ordered";
+		for(i in order){
+			if(!order[i].status){
+				console.log("Order is placed on backorder due to insufficient quantity of "+order[i].name+".");
+				orderStatus = "Backorder";
+			}
+		}
+
+		var newOrder = {
+			userId: userId,
+			total: 0,
+			status: orderStatus,
+			timeplaced: new Date(),
+			items: []
+		};
+
+		for(i in order){
+			newOrder.total += order[i].amount*order[i].price;
+			newOrder.items.push({itemId: order[i].id, price: order[i].price, amount: order[i].amount, stock: order[i].stock});
+		}
+
+		connection.insertOrder(newOrder, userId)
+		.then(function(result){
+			console.log(result);
+		})
+		.error(function(error){
+			console.log(error);
+		});
+	}
+}
