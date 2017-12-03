@@ -15,7 +15,7 @@ var pickSubOption = function(connection, id){
 	};
 
 	var viewOrders = "View current orders";
-	var placeOrders = "Place an order"
+	var placeOrders = "Place an order";
 	var exit = "Exit";
 
 	question.choices.push(viewOrders);

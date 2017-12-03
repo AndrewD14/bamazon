@@ -16,7 +16,11 @@ exports.getProducts = function(){
 		pool.getConnection(function(error, connection){
 			if(error) return reject(error);
 
-			connection.query('SELECT item_id, product_name, price, stock_quantity FROM products', function (error, results, fields){
+			var getProductInto = "SELECT distinct item_id, product_name, price, stock_quantity, department_name "+
+								"FROM products p "+
+								"INNER JOIN departments d "+
+								"ON p.department_id = d.department_id";
+			connection.query(getProductInto, function (error, results, fields){
 				if(error) return reject(error);
 
 				var products = [];
@@ -26,7 +30,8 @@ exports.getProducts = function(){
 						itemId: results[i].item_id,
 						name: results[i].product_name,
 						price: results[i].price,
-						stock: results[i].stock_quantity
+						stock: results[i].stock_quantity,
+						departmentName: results[i].department_name
 					});
 				}
 

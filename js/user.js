@@ -105,7 +105,7 @@ var signUp = function(connection){
 var pickMainOption = function(){
 	//adds in the role types
 	if(login_user.roleTypes.length == 1 && login_user.roleTypes[0].role == 'C'){
-		customer = require('./customer.js');
+		customer = require('./bamazonCustomer.js');
 		customer.pickSubOption(connection, login_user.userId);
 	}
 	else{
@@ -113,7 +113,7 @@ var pickMainOption = function(){
 			name: "mainChoice",
 			message: "What section of app would you like to use?",
 			choices: [],
-			type: "rawlist"
+			type: "list"
 		};
 
 		for(i in login_user.roleTypes){
@@ -133,6 +133,7 @@ var pickMainOption = function(){
 				var found = false;
 				var choice = "";
 
+				//loops through the user's roles to find one that matches the key
 				do{
 					if(picked.mainChoice == login_user.roleTypes[index].description){
 						found = true;
@@ -140,14 +141,16 @@ var pickMainOption = function(){
 					}
 					else
 						index++;
-				}while (index < login_user.roleTypes && !found);
+				}while (index < login_user.roleTypes.length && !found);
 
+				//checks with key was picked
 				if(choice == 'C'){
 					customer = require('./bamazonCustomer.js');
 					customer.pickSubOption(connection, login_user.userId);
 				}
-				else if(choice == 'A'){
-
+				else if(choice == 'M'){
+					manager = require('./bamazonManager.js');
+					manager.pickSubOption(connection, login_user.userId);
 				}
 			}
 		});
