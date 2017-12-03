@@ -65,6 +65,51 @@ exports.getSpecificProduct = function(id){
 	});
 }
 
+//logs user in
+exports.logIn = function(values){
+	var sql = "SELECT u.user_id, f_name, l_name, role_type, description "+
+			"FROM users u "+
+			"INNER JOIN user_role ur "+
+			"ON u.user_id = ur.user_id "+
+			"INNER JOIN roles r "+
+			"ON ur.role_id = r.role_id "+
+			"WHERE login_id = ? "+
+			"AND password = ?";
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if (error) return reject(error);
+
+			connection.query(mysql.format(sql, values), function(error, results, fields){
+				if (error) return reject(error);
+
+				var user = {
+					userId: -1,
+					firstName: "",
+					lastName: "",
+					roleTypes: []
+				};
+
+				//loops through the results and pulls out the role_types
+				for(i in results){
+					if(i == 0){
+						user.userId = results[i].user_id;
+						user.firstName = results[i].f_name;
+						user.lastName = results[i].l_name;
+						user.roleTypes.push({role: results[i].role_type, description: results[i].description});
+					}
+					else
+						if(results[i].f_name != user.firstName || results[i].l_name != user.lastName)
+					return reject("Error: More than 1 user pulled.");
+				else
+					user.roleTypes.push({role: results[i].role_type, description: results[i].description});
+				}
+				connection.release();
+				return resolve(user);
+			});
+		});
+	});
+}
+
 //closes the pool
 exports.closeConnection = function(){
 	pool.end(function (err) {
