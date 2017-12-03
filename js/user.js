@@ -143,7 +143,7 @@ var pickMainOption = function(){
 				}while (index < login_user.roleTypes && !found);
 
 				if(choice == 'C'){
-					customer = require('./customer.js');
+					customer = require('./bamazonCustomer.js');
 					customer.pickSubOption(connection, login_user.userId);
 				}
 				else if(choice == 'A'){
