@@ -49,7 +49,15 @@ var pickSubOption = function(connection, id){
 			});
 		}
 		else if(picked.mainChoice == addInventory){
-
+			updateInventory(connection)
+			.then(function(results){
+				console.log(results);
+				pickSubOption(connection, id);
+			})
+			.error(function(error){
+				console.log(error);
+				pickSubOption(connection, id);
+			});
 		}
 		else if(picked.mainChoice == addNewProduct){
 
@@ -73,6 +81,56 @@ var displayProducts = function(results){
 	}
 	else
 		console.log("Nothing to display.");
+}
+
+//gets the info of which product the manager wants to increase
+var updateInventory = function(connection){
+	return new Promises(function(resolve, reject){
+		inquirer.prompt([
+			{
+				name: "item",
+				message: "Enter the item ID you which to adjust the stock to be: "
+			}
+		]).then(function(answer){
+			var id = parseInt(answer.item);
+			if(id){
+				connection.getSpecificProduct(id)
+				.then(function(results){
+					if(results){
+						inquirer.prompt([
+							{
+								name: "amount",
+								message: "Enter the new stock quantity for "+results.name+": ",
+								validate: validateForNumber
+							}
+						]).then(function(answer){
+							connection.updateQuantity(id, answer.amount)
+							.then(function(results){
+								return resolve(results);
+							})
+							.error(function(error){
+								return reject(error);
+							});
+						});
+					}
+				})
+				.error(function(error){
+					return reject("Error retrieving product info: "+error);
+				});
+			}
+			else{
+				return reject(answer.item+" is not a valid item id. Skipping input.");
+			}
+		});
+	});
+}
+
+//validates for an integer
+function validateForNumber(amount){
+	if(parseInt(amount))
+		return true;
+	else
+		return false || "Amount should be a whole number!";
 }
 
 //exports the function for other files to use

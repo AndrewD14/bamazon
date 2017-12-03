@@ -155,7 +155,7 @@ exports.addCustomer = function(values){
 			if (error) return reject(error);
 
 			connection.beginTransaction(function(error){
-				if(error) reject(error);
+				if(error) return reject(error);
 
 				var sql = "INSERT INTO users (login_id, f_name, l_name, password) VALUES (?,?,?,?)";
 				connection.query(mysql.format(sql, values), function(error, data){
@@ -198,7 +198,7 @@ exports.insertOrder = function(order, user_id){
 			if(error) return reject(error);
 
 			connection.beginTransaction(function(error){
-				if(error) reject(error);
+				if(error) return reject(error);
 
 				var insertOrder = "INSERT INTO orders (user_id, timeplaced, status, total) VALUES (?,?,?,?)";
 				var values = [user_id, order.timeplaced, order.status, order.total];
@@ -281,16 +281,43 @@ function insertOrderItem(connection, items, order_id, index, status){
 //function to update the product table
 var updateProductCount = function(connection, item_id, amount){
 	return new Promises(function(resolve, reject){
-		if(amount >= 0){
-			var updateProd = "UPDATE products SET stock_quantity = ? WHERE item_id = ?";
-			connection.query(mysql.format(updateProd, [amount, item_id]), function(error, data){
+		var updateProd = "UPDATE products SET stock_quantity = ? WHERE item_id = ?";
+		connection.query(mysql.format(updateProd, [amount, item_id]), function(error, data){
+			if(error) return reject(error);
+
+			return resolve("Update success");
+		});
+	});
+}
+
+//external function for updating a product
+exports.updateQuantity = function(itemId, amount){
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if(error) return reject(error);
+
+			connection.beginTransaction(function(error){
 				if(error) return reject(error);
 
-				return resolve("Update success");
+				updateProductCount(connection, itemId, amount)
+				.then(function(result){
+					connection.commit(function(error){
+						if(error){
+							connection.rollback(function(){});
+							connection.release();
+							return reject(error);
+						}
+					});
+					connection.release();
+					return resolve(result);
+				})
+				.error(function(error){
+					connection.rollback(function(){});
+					connection.release();
+					return reject(error);
+				});
 			});
-		}
-		else
-			return reject("Amount updating stock to is less than 0;");
+		});
 	});
 }
 
