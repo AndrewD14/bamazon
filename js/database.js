@@ -42,6 +42,39 @@ exports.getProducts = function(){
 	});	
 }
 
+//gets a list of all products that have inventory less than 5
+exports.getLowInventoryProducts = function(){
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if(error) return reject(error);
+
+			var getProductInto = "SELECT distinct item_id, product_name, price, stock_quantity, department_name "+
+								"FROM products p "+
+								"INNER JOIN departments d "+
+								"ON p.department_id = d.department_id "+
+								"WHERE stock_quantity < 5";
+			connection.query(getProductInto, function (error, results, fields){
+				if(error) return reject(error);
+
+				var products = [];
+
+				for(i in results){
+					products.push({
+						itemId: results[i].item_id,
+						name: results[i].product_name,
+						price: results[i].price,
+						stock: results[i].stock_quantity,
+						departmentName: results[i].department_name
+					});
+				}
+
+				connection.release();
+				return resolve(products);
+			});
+		});
+	});	
+}
+
 //gets all info on a specific product
 exports.getSpecificProduct = function(id){
 	return new Promises(function(resolve, reject){

@@ -26,13 +26,27 @@ var pickSubOption = function(connection, id){
 
 	inquirer.prompt(question)
 	.then(function(picked){
-		if(picked.mainChoice == viewProducts)
-			displayProducts(connection)
+		if(picked.mainChoice == viewProducts){
+			connection.getProducts()
 			.then(function(results){
+				displayProducts(results);
+				pickSubOption(connection, id);
+			})
+			.error(function(error){
+				console.log(error);
 				pickSubOption(connection, id);
 			});
+		}
 		else if(picked.mainChoice == viewLowInventory){
-
+			connection.getLowInventoryProducts()
+			.then(function(results){
+				displayProducts(results);
+				pickSubOption(connection, id);
+			})
+			.error(function(error){
+				console.log(error);
+				pickSubOption(connection, id);
+			});
 		}
 		else if(picked.mainChoice == addInventory){
 
@@ -51,24 +65,14 @@ var pickSubOption = function(connection, id){
 }
 
 //gets a list of products
-var displayProducts = function(connection){
-	return new Promises(function(resolve, reject){
-		connection.getProducts()
-		.then(function(results){
-			products = results;
-
-			if(products.length > 0){
-				console.log("Item Number\tItem\t\tPrice\t\tStock\t\tDepartment");
-				for(i in products)
-					console.log(products[i].itemId+"\t\t"+products[i].name+"\t\t"+products[i].price+"\t\t"+products[i].stock+"\t\t"+products[i].departmentName);
-			}
-			return resolve("Success");
-		})
-		.catch(function(error){
-			console.log("ERROR: "+error);
-			return reject("Failure");
-		});
-	});
+var displayProducts = function(results){
+	if(results.length > 0){
+		console.log("Item Number\tItem\t\tPrice\t\tStock\t\tDepartment");
+		for(i in results)
+			console.log(results[i].itemId+"\t\t"+results[i].name+"\t\t"+results[i].price+"\t\t"+results[i].stock+"\t\t"+results[i].departmentName);
+	}
+	else
+		console.log("Nothing to display.");
 }
 
 //exports the function for other files to use
