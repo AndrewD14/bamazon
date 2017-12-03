@@ -46,6 +46,42 @@ var login = function(){
 	});
 }
 
+//function for signing up
+var signUp = function(connection){
+	inquirer.prompt([
+		{
+			name: "username",
+			message: "Enter username:"
+		},
+		{
+			name: "password",
+			message: "Enter password:",
+			type: "password"
+		},
+		{
+			name: "f_name",
+			message: "Enter your first name:"
+		},
+		{
+			name: "l_name",
+			message: "Enter your last name:"
+		}
+	]).then(function(answers){
+		connection.addCustomer([answers.username, answers.f_name, answers.l_name, answers.password])
+		.then(function(results){
+			if(results == null)
+				console.log("Fail to add a user.");
+			else{
+				console.log(results+" Please try to log in.");
+				login();
+			}
+		})
+		.catch(function(error){
+			console.log("ERROR: "+error);
+		});
+	});
+}
+
 //ask the user what they first would like to do
 var pickMainOption = function(){
 	//adds in the role types
