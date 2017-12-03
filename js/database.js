@@ -153,6 +153,109 @@ exports.addCustomer = function(values){
 	});
 }
 
+//inserts a new order
+exports.insertOrder = function(order, user_id){
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if(error) return reject(error);
+
+			connection.beginTransaction(function(error){
+				if(error) reject(error);
+
+				var insertOrder = "INSERT INTO orders (user_id, timeplaced, status, total) VALUES (?,?,?,?)";
+				var values = [user_id, order.timeplaced, order.status, order.total];
+				connection.query(mysql.format(insertOrder, values), function(error, data){
+					if(error){
+						connection.rollback(function(){});
+						connection.release();
+						return reject(error);
+					}
+
+					var order_id = data.insertId;
+					insertOrderItem(connection, order.items, order_id, 0, order.status)
+					.then(function(results){
+						connection.commit(function(error){
+							if(error){
+								connection.rollback(function(){});
+								connection.release();
+								return reject(error);
+							}
+
+							return resolve("Order was placed. Your order number is: "+order_id);
+						});
+					})
+					.error(function(error){
+						connection.rollback(function(){});
+						connection.release();
+						return reject(error);
+					});
+				});
+			});
+		});
+	});
+}
+
+//inserts the items for the order
+function insertOrderItem(connection, items, order_id, index, status){
+	return new Promises(function(resolve, reject){
+		if(index < items.length){
+			var orderItem_sql = "INSERT INTO order_items (order_id, item_id, price, quantity) VALUES (?,?,?,?)";
+			var values = [order_id, items[index].itemId, items[index].price, items[index].amount];
+			connection.query(mysql.format(orderItem_sql, values), function(error, data){
+				if(error){
+					connection.rollback(function(){});
+					connection.release();
+					return reject(error);
+				}
+
+				if(status != "Backorder"){
+					//updates the table for the specific item
+					updateProductCount(connection, items[index].itemId, items[index].stock - items[index].amount)
+					.then(function(results){
+						insertOrderItem(connection, items, order_id, index+1, status)
+						.then(function(results){
+							return resolve("Done");
+						})
+						.error(function(error){
+							return reject(error);
+						});
+					})
+					.error(function(error){
+						connection.rollback(function(){});
+						connection.release();
+						return reject(error);
+					});
+				}
+				else
+					insertOrderItem(connection, items, order_id, index+1, status)
+					.then(function(results){
+						return resolve("Done");
+					})
+					.error(function(error){
+						return reject(error);
+					});
+			});
+		}
+		return resolve("Done");
+	});
+}
+
+//function to update the product table
+var updateProductCount = function(connection, item_id, amount){
+	return new Promises(function(resolve, reject){
+		if(amount >= 0){
+			var updateProd = "UPDATE products SET stock_quantity = ? WHERE item_id = ?";
+			connection.query(mysql.format(updateProd, [amount, item_id]), function(error, data){
+				if(error) return reject(error);
+
+				return resolve("Update success");
+			});
+		}
+		else
+			return reject("Amount updating stock to is less than 0;");
+	});
+}
+
 //closes the pool
 exports.closeConnection = function(){
 	pool.end(function (err) {
