@@ -15,6 +15,25 @@ var greetings = function(){
 	console.log("Welcome, "+login_user.firstName +" "+login_user.lastName+".");
 }
 
+//gets the choice if the user wants to log in or signup
+var enterApp = function(){
+	inquirer.prompt([
+		{
+			name: "action",
+			message: "What would you like to do?",
+			type: "list",
+			choices: ["login", "signup", "exit"]
+		}
+	]).then(function(result){
+		if(result.action == "login")
+			login();
+		else if(result.action == "signup")
+			signUp();
+		else
+			console.log("Goodbye");
+	});
+}
+
 //gets user inputs to log in
 var login = function(){
 	inquirer.prompt([
