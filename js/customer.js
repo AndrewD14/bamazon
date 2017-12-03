@@ -159,3 +159,30 @@ function validateQuantity(connection, index, order, userId){
 		});
 	}
 }
+
+//displays the current order
+var displayOrders = function(connection, userId){
+	connection.getOrders(userId)
+	.then(function(results){
+		if(results.length == 0)
+			console.log("You have no current orders.");
+		else{
+			console.log("Your orders:");
+			console.log();
+
+			for(i in results){
+				console.log("Order Number: "+results[i].orderId+"\t\tOrder Staus: "+results[i].status+"\t\t"+"Order Placed: "+results[i].timeplaced);
+				console.log("Product\t\tPrice\t\tQuantity\tLine Total");
+
+				for(j in results[i].items){
+					console.log(results[i].items[j].product+"\t\t"+results[i].items[j].price+"\t\t"+results[i].items[j].quantity+"\t\t"+results[i].items[j].total);
+					if(j == results[i].items.length-1)
+						console.log();
+				}
+			}
+		}
+	})
+	.catch(function(error){
+		console.log("ERROR: "+error);
+	});
+}
