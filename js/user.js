@@ -15,6 +15,37 @@ var greetings = function(){
 	console.log("Welcome, "+login_user.firstName +" "+login_user.lastName+".");
 }
 
+//gets user inputs to log in
+var login = function(){
+	inquirer.prompt([
+		{
+			name: "username",
+			message: "Enter username:"
+		},
+		{
+			name: "password",
+			message: "Enter password:",
+			type: "password"
+		}
+	]).then(function(answers){
+		connection.logIn([answers.username, answers.password])
+		.then(function(results){
+				if(results.roleTypes.length > 0){
+					login_user = results;
+					greetings();
+					pickMainOption();
+				}
+				else{
+					console.log("Invalid username/password.");
+					login();
+				}
+		})
+		.catch(function(error){
+			console.log("ERROR: "+error);
+		});
+	});
+}
+
 //ask the user what they first would like to do
 var pickMainOption = function(){
 	//adds in the role types
