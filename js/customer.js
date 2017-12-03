@@ -84,3 +84,14 @@ function getAmountToOrder(connection, index, selection, userId){
 			insertOrder(connection, newOrder, userId);
 	}
 }
+
+//validates for an integer
+function validateForNumber(amount){
+	if(parseInt(amount))
+		if(parseInt(amount) > 0)
+			return true;
+		else
+			return false || "Amount should be greater than 0!";
+	else
+		return false || "Amount should be a whole number!";
+}
