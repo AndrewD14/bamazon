@@ -14,3 +14,56 @@ var login_user = null;
 var greetings = function(){
 	console.log("Welcome, "+login_user.firstName +" "+login_user.lastName+".");
 }
+
+//ask the user what they first would like to do
+var pickMainOption = function(){
+	//adds in the role types
+	if(login_user.roleTypes.length == 1 && login_user.roleTypes[0].role == 'C'){
+		customer = require('./customer.js');
+		customer.pickSubOption(connection, login_user.userId);
+	}
+	else{
+		var question = {
+			name: "mainChoice",
+			message: "What section of app would you like to use?",
+			choices: [],
+			type: "rawlist"
+		};
+
+		for(i in login_user.roleTypes){
+			question.choices.push(login_user.roleTypes[i].description);
+		}
+
+		question.choices.push("Exit");
+
+		inquirer.prompt(question)
+		.then(function(picked){
+			if(picked.mainChoice == "Exit"){
+				console.log("Goodbye.");
+				connection.closeConnection();
+			}
+			else{
+				var index = 0;
+				var found = false;
+				var choice = "";
+
+				do{
+					if(picked.mainChoice == login_user.roleTypes[index].description){
+						found = true;
+						choice = login_user.roleTypes[index].role;
+					}
+					else
+						index++;
+				}while (index < login_user.roleTypes && !found);
+
+				if(choice == 'C'){
+					customer = require('./customer.js');
+					customer.pickSubOption(connection, login_user.userId);
+				}
+				else if(choice == 'A'){
+
+				}
+			}
+		});
+	}
+}
