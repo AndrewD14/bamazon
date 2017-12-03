@@ -256,6 +256,75 @@ var updateProductCount = function(connection, item_id, amount){
 	});
 }
 
+//gets current orders for the user
+exports.getOrders = function(userId){
+	return new Promises(function(resolve, reject){
+		var sql = "SELECT O.order_id, O.status, O.timeplaced, O.total, "+
+				"OI.price, OI.quantity, round(OI.price * OI.quantity, 2) as 'item_total', "+
+				"P.product_name "+
+				"FROM ORDERS O "+
+				"INNER JOIN ORDER_ITEMS OI "+
+				"ON O.order_id = OI.order_id "+
+				"INNER JOIN PRODUCTS P "+
+				"ON OI.item_id = P.item_id "+
+				"WHERE user_id = ? "+
+				"ORDER BY O.order_id";
+
+		pool.getConnection(function(error, connection){
+			if (error) return reject(error);
+
+			connection.query(mysql.format(sql, [userId]), function(error, results, fields){
+				if(error) return reject(error);
+
+				var orders = [];
+
+				var order = {
+					orderId: -1,
+					status: "",
+					timeplaced: null,
+					orderTotal: 0,
+					items: []
+				};
+
+				//builds the order summary object
+				for(i in results){
+					if(i == 0 || results[i].order_id != orders[orders.length-1].orderId){
+						order = {
+							orderId: -1,
+							status: "",
+							timeplaced: null,
+							orderTotal: 0,
+							items: []
+						};
+						order.orderId = results[i].order_id;
+						order.status = results[i].status;
+						order.orderTotal = results[i].total;
+						order.timeplaced = results[i].timeplaced;
+						order.items.push({
+							product: results[i].product_name,
+							price: results[i].price,
+							quantity: results[i].quantity,
+							total: results[i].item_total
+						});
+
+						orders.push(order);
+					}
+					else
+						order.items.push({
+							product: results[i].product_name,
+							price: results[i].price,
+							quantity: results[i].quantity,
+							total: results[i].item_total
+						});
+					}
+
+				connection.release();
+				return resolve(orders);
+			});
+		});
+	});
+}
+
 //closes the pool
 exports.closeConnection = function(){
 	pool.end(function (err) {
