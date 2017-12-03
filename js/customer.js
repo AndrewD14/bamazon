@@ -5,6 +5,46 @@ var Promises = require("bluebird");
 var products = null;
 var newOrder = [];
 
+//options for the customer to choose what to do
+exports.pickSubOption = function(connection, id){
+	var question = {
+		name: "mainChoice",
+		message: "What would you like to do?",
+		choices: [],
+		type: "list"
+	};
+
+	var viewOrders = "View current orders";
+	var placeOrders = "Place an order"
+	var exit = "Exit";
+
+	question.choices.push(viewOrders);
+	question.choices.push(placeOrders);
+	question.choices.push(exit);
+
+	inquirer.prompt(question)
+	.then(function(picked){
+		if(picked.mainChoice == viewOrders)
+			displayOrders(connection, id);
+		else if(picked.mainChoice == placeOrders){
+			displayProducts(connection)
+			.then(function(results){
+				placeOrder(connection, id);
+			})
+			.error(function(error){
+				console.log(error);
+			});
+		}
+		else{
+			console.log("Goodbye.");
+			connection.closeConnection();
+		}
+	})
+	.catch(function(error){
+		console.log(error);
+	});
+}
+
 //gets a list of products
 var displayProducts = function(connection){
 	return new Promises(function(resolve, reject){
