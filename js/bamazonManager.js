@@ -15,12 +15,14 @@ var pickSubOption = function(connection, id){
 	var viewProducts = "View Products for Sale";
 	var viewLowInventory = "View Low Inventory";
 	var addInventory = "Add to Inventory";
+	var updateInv = "Update Inventory";
 	var addNewProduct = "Add New Product";
 	var exit = "Exit";
 
 	question.choices.push(viewProducts);
 	question.choices.push(viewLowInventory);
 	question.choices.push(addInventory);
+	question.choices.push(updateInv);
 	question.choices.push(addNewProduct);
 	question.choices.push(exit);
 
@@ -49,14 +51,29 @@ var pickSubOption = function(connection, id){
 			});
 		}
 		else if(picked.mainChoice == addInventory){
-			updateInventory(connection)
-			.then(function(results){
-				console.log(results);
-				pickSubOption(connection, id);
-			})
-			.error(function(error){
-				console.log(error);
-				pickSubOption(connection, id);
+			
+		}
+		else if(picked.mainChoice == updateInv){
+			inquirer.prompt([
+				{
+					name: "continue",
+					message: "This will change the inventory to the amount enter. Want to continue?",
+					type: "confirm"
+				}
+			]).then(function(results){
+				if(results.continue){
+					updateInventory(connection)
+					.then(function(results){
+						console.log(results);
+						pickSubOption(connection, id);
+					})
+					.error(function(error){
+						console.log(error);
+						pickSubOption(connection, id);
+					});
+				}
+				else
+					pickSubOption(connection, id);
 			});
 		}
 		else if(picked.mainChoice == addNewProduct){
