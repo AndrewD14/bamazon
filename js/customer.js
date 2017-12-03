@@ -6,7 +6,7 @@ var products = null;
 var newOrder = [];
 
 //options for the customer to choose what to do
-exports.pickSubOption = function(connection, id){
+var pickSubOption = function(connection, id){
 	var question = {
 		name: "mainChoice",
 		message: "What would you like to do?",
@@ -220,9 +220,14 @@ var displayOrders = function(connection, userId){
 						console.log();
 				}
 			}
+
+			pickSubOption(connection, userId);
 		}
 	})
 	.catch(function(error){
 		console.log("ERROR: "+error);
 	});
 }
+
+//exports the function for other files to use
+module.exports = {pickSubOption: pickSubOption};
