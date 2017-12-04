@@ -51,7 +51,15 @@ var pickSubOption = function(connection, id){
 			});
 		}
 		else if(picked.mainChoice == addInventory){
-			
+			addToInventory(connection)
+			.then(function(results){
+				console.log(results);
+				pickSubOption(connection, id);
+			})
+			.error(function(error){
+				console.log(error);
+				pickSubOption(connection, id);
+			});
 		}
 		else if(picked.mainChoice == updateInv){
 			inquirer.prompt([
@@ -100,7 +108,7 @@ var displayProducts = function(results){
 		console.log("Nothing to display.");
 }
 
-//gets the info of which product the manager wants to increase
+//gets the info of which product the manager wants to change stock
 var updateInventory = function(connection){
 	return new Promises(function(resolve, reject){
 		inquirer.prompt([
@@ -121,7 +129,49 @@ var updateInventory = function(connection){
 								validate: validateForNumber
 							}
 						]).then(function(answer){
-							connection.updateQuantity(id, answer.amount)
+							connection.updateQuantity(id, parseInt(answer.amount))
+							.then(function(results){
+								return resolve(results);
+							})
+							.error(function(error){
+								return reject(error);
+							});
+						});
+					}
+				})
+				.error(function(error){
+					return reject("Error retrieving product info: "+error);
+				});
+			}
+			else{
+				return reject(answer.item+" is not a valid item id. Skipping input.");
+			}
+		});
+	});
+}
+
+//gets the info of which product the manager wants to change stock
+var addToInventory = function(connection){
+	return new Promises(function(resolve, reject){
+		inquirer.prompt([
+			{
+				name: "item",
+				message: "Enter the item ID you which to increase the stock to be: "
+			}
+		]).then(function(answer){
+			var id = parseInt(answer.item);
+			if(id){
+				connection.getSpecificProduct(id)
+				.then(function(results){
+					if(results){
+						inquirer.prompt([
+							{
+								name: "amount",
+								message: "Enter the amount to increase the stock quantity for "+results.name+": ",
+								validate: validateForPositiveNumber
+							}
+						]).then(function(answer){
+							connection.increaseQuantity(id, parseInt(answer.amount))
 							.then(function(results){
 								return resolve(results);
 							})
@@ -146,6 +196,17 @@ var updateInventory = function(connection){
 function validateForNumber(amount){
 	if(parseInt(amount))
 		return true;
+	else
+		return false || "Amount should be a whole number!";
+}
+
+//validates for an integer
+function validateForPositiveNumber(amount){
+	if(parseInt(amount))
+		if(parseInt(amount) > 0)
+			return true;
+		else
+			return false || "Amount needs to be greater than 0!";
 	else
 		return false || "Amount should be a whole number!";
 }

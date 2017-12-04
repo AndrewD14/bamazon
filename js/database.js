@@ -7,7 +7,7 @@ var pool = mysql.createPool({
   user     : 'bamazon_user',
   password : 'bamazon',
   database : 'bamazon',
-  connectionLimit: 1
+  connectionLimit: 2
 });
 
 //gets a list of all products
@@ -76,7 +76,7 @@ exports.getLowInventoryProducts = function(){
 }
 
 //gets all info on a specific product
-exports.getSpecificProduct = function(id){
+var getSpecificProduct = function(id){
 	return new Promises(function(resolve, reject){
 		pool.getConnection(function(error, connection){
 			if(error) return reject(error);
@@ -321,6 +321,45 @@ exports.updateQuantity = function(itemId, amount){
 	});
 }
 
+//external function for updating a product
+exports.increaseQuantity = function(itemId, amount){
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if(error) return reject(error);
+
+			connection.beginTransaction(function(error){
+				if(error) return reject(error);
+
+				getSpecificProduct(itemId)
+				.then(function(result){
+					updateProductCount(connection, itemId, result.stock+amount)
+					.then(function(result){
+						connection.commit(function(error){
+							if(error){
+								connection.rollback(function(){});
+								connection.release();
+								return reject(error);
+							}
+						});
+						connection.release();
+						return resolve(result);
+					})
+					.error(function(error){
+						connection.rollback(function(){});
+						connection.release();
+						return reject(error);
+					});
+				})
+				.error(function(error){
+					connection.rollback(function(){});
+					connection.release();
+					return reject(error);
+				});
+			});
+		});
+	});
+}
+
 //gets current orders for the user
 exports.getOrders = function(userId){
 	return new Promises(function(resolve, reject){
@@ -396,3 +435,6 @@ exports.closeConnection = function(){
 		if(err) throw err;
 	});
 }
+
+//exports the function for other files to use
+module.exports.getSpecificProduct = getSpecificProduct;
