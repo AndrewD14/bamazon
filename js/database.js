@@ -490,6 +490,50 @@ exports.getDepartmentInfo = function(){
 	});
 }
 
+//gets the product sales by department
+exports.getProductSalesByDepartment = function(){
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if(error) return reject(error);
+
+			var sql = "SELECT d.department_id, d.department_name, d.over_head_cost, "+
+						"round(sum(tot_sales.total_sales), 2) as 'product_sales', "+
+						"round(COALESCE(sum(tot_sales.total_sales),0)-d.over_head_cost, 2) as 'total_profit' "+
+						"FROM departments d "+
+						"INNER JOIN products p "+
+						"ON d.department_id = p.department_id "+
+						"LEFT OUTER JOIN (SELECT sale1.item_id, sum(sale1.sales) as 'total_sales' "+
+						"                FROM (SELECT item_id, price, sum(quantity), round(sum(quantity)*price,2) as 'sales' "+
+						"                        FROM orders o "+
+						"                        INNER JOIN order_items oi "+
+						"                        ON o.order_id = oi.order_id "+
+						"                        GROUP BY item_id, price) sale1 "+
+						"                GROUP BY sale1.item_id) tot_sales "+
+						"ON tot_sales.item_id = p.item_id "+
+						"GROUP BY d.department_id, d.department_name, d.over_head_cost;";
+
+			connection.query(sql, function (error, results, fields){
+				if(error) return reject(error);
+
+				var salesByDepartments = [];
+
+				for(i in results){
+					salesByDepartments.push({
+						departmentId: results[i].department_id,
+						name: results[i].department_name,
+						overHeadCost: results[i].over_head_cost,
+						sales: results[i].product_sales,
+						profit: results[i].total_profit
+					});
+				}
+
+				connection.release();
+				return resolve(salesByDepartments);
+			});
+		});
+	});
+}
+
 //closes the pool
 exports.closeConnection = function(){
 	pool.end(function (err) {

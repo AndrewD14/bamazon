@@ -3,7 +3,7 @@ var inquirer = require('inquirer');
 var Promises = require("bluebird");
 
 
-//options for the customer to choose what to do
+//options for the manger to choose what to do
 var pickSubOption = function(connection, id){
 	var question = {
 		name: "mainChoice",

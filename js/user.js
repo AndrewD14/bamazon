@@ -4,7 +4,7 @@ var inquirer = require('inquirer');
 //imports local files
 var connection = require('./database.js');
 var customer = null;
-var admin = null;
+var supervisor = null;
 var manager = null;
 
 //global variable
@@ -151,6 +151,10 @@ var pickMainOption = function(){
 				else if(choice == 'M'){
 					manager = require('./bamazonManager.js');
 					manager.pickSubOption(connection, login_user.userId);
+				}
+				else if(choice == 'S'){
+					supervisor = require('./bamazonSupervisor.js');
+					supervisor.pickSubOption(connection, login_user.userId);
 				}
 			}
 		});
