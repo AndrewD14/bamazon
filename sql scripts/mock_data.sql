@@ -48,22 +48,22 @@ VALUES
 INSERT INTO products
 (product_name,department_id,price,stock_quantity)
 VALUES
-("Nerf Gun", 1, 14.99, 10);
+("Nerf Gun", 2, 14.99, 10);
 
 INSERT INTO products
 (product_name,department_id,price,stock_quantity)
 VALUES
-("R/C Car", 1, 24.99, 10);
+("R/C Car", 2, 24.99, 10);
 
 INSERT INTO products
 (product_name,department_id,price,stock_quantity)
 VALUES
-("Stuff Bear", 1, 4.49, 15);
+("Stuff Bear", 2, 4.49, 15);
 
 INSERT INTO products
 (product_name,department_id,price,stock_quantity)
 VALUES
-("Star Wars Lego", 1, 19.99, 20);
+("Star Wars Lego", 2, 19.99, 20);
 
 
 #user roles
@@ -91,11 +91,6 @@ VALUES
 INSERT INTO users
 (login_id, f_name, l_name, password)
 VALUES
-('Customer1', 'Billy','Bob','1234');
-
-INSERT INTO users
-(login_id, f_name, l_name, password)
-VALUES
 ('Supervisor', 'Sally','Sullivan','1234');
 
 #user_roles
@@ -117,9 +112,4 @@ VALUES
 INSERT INTO user_role
 (user_id, role_id)
 VALUES
-(3, 1);
-
-INSERT INTO user_role
-(user_id, role_id)
-VALUES
-(3, 3);
+(2, 3);
