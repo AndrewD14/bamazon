@@ -1,0 +1,25 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "Basic customer ordering and product management app through the console.",
+  "main": "app.js",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "inquirer": "^4.0.1",
+    "mysql": "^2.15.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndrewD14/bamazon.git"
+  },
+  "author": "Andrew Damico",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndrewD14/bamazon/issues"
+  },
+  "homepage": "https://github.com/AndrewD14/bamazon#readme"
+}
