@@ -217,12 +217,12 @@ var displayOrders = function(connection, userId){
 
 				for(j in results[i].items){
 					console.log(results[i].items[j].product.padEnd(30)+
-								("$"+results[i].items[j].price.toFixed(2)).padEnd(10)+
+								("$"+results[i].items[j].price).padEnd(10)+
 								(""+results[i].items[j].quantity).padEnd(10)+
 								"$"+results[i].items[j].total);
 				}
 
-				console.log("Order Total: $".padStart(50)+results[i].orderTotal.toFixed(2));
+				console.log("Order Total: $".padStart(51)+results[i].orderTotal);
 				console.log();
 			}
 		}
