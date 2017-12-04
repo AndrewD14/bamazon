@@ -164,7 +164,6 @@ function validateQuantity(connection, index, order, userId){
 			else
 				order[index].status = false;
 
-			
 			validateQuantity(connection, index+1, order, userId);
 		});
 	}
@@ -221,11 +220,10 @@ var displayOrders = function(connection, userId){
 								("$"+results[i].items[j].price).padEnd(7)+
 								(""+results[i].items[j].quantity).padEnd(10)+
 								"$"+results[i].items[j].total);
-					if(j == results[i].items.length-1)
-						console.log();
 				}
 
-				console.log("Order Total: $"+results[i].orderTotal);
+				console.log("Order Total: ".padStart(47)+"$"+results[i].orderTotal);
+				console.log();
 			}
 
 			pickSubOption(connection, userId);
