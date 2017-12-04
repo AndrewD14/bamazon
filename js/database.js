@@ -363,7 +363,7 @@ exports.increaseQuantity = function(itemId, amount){
 //gets current orders for the user
 exports.getOrders = function(userId){
 	return new Promises(function(resolve, reject){
-		var sql = "SELECT O.order_id, O.status, O.timeplaced, O.total, "+
+		var sql = "SELECT O.order_id, O.status, O.timeplaced, round(O.total, 2) as 'total', "+
 				"OI.price, OI.quantity, round(OI.price * OI.quantity, 2) as 'item_total', "+
 				"P.product_name "+
 				"FROM ORDERS O "+
