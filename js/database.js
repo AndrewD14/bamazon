@@ -402,13 +402,13 @@ exports.getOrders = function(userId){
 						};
 						order.orderId = results[i].order_id;
 						order.status = results[i].status;
-						order.orderTotal = results[i].total;
+						order.orderTotal = results[i].total.toFixed(2);
 						order.timeplaced = results[i].timeplaced;
 						order.items.push({
 							product: results[i].product_name,
-							price: results[i].price,
+							price: results[i].price.toFixed(2),
 							quantity: results[i].quantity,
-							total: results[i].item_total
+							total: results[i].item_total.toFixed(2)
 						});
 
 						orders.push(order);

@@ -140,14 +140,14 @@ function validateForNumber(amount){
 var insertOrder = function(connection, order, userId){
 	var subTotal = 0;
 	console.log("Current Order");
-	console.log("Product\t\tPrice\t\tAmount\t\tProduct Total");
+	console.log("Product".padEnd(30)+"Price".padEnd(10)+"Amount".padEnd(10)+"Product Total");
 	for(i in order){
 		var item_total = order[i].amount*order[i].price;
 		subTotal+= item_total;
 
-		console.log(order[i].name+"\t\t"+order[i].price+"\t\t"+order[i].amount+"\t\t"+item_total);
+		console.log(order[i].name.padEnd(30)+("$"+order[i].price).padEnd(10)+(""+order[i].amount).padEnd(10)+"$"+item_total.toFixed(2));
 	}
-	console.log("Order Subtotal: "+subTotal);
+	console.log(("Order Subtotal: $").padStart(51)+subTotal.toFixed(2));
 
 	validateQuantity(connection, 0, order, userId);
 }
@@ -213,16 +213,16 @@ var displayOrders = function(connection, userId){
 
 			for(i in results){
 				console.log("Order Number: "+results[i].orderId+"\t\tOrder Staus: "+results[i].status+"\t\t"+"Order Placed: "+results[i].timeplaced);
-				console.log("Product".padEnd(30)+"Price".padEnd(7)+"Quantity".padEnd(10)+"Line Total");
+				console.log("Product".padEnd(30)+"Price".padEnd(10)+"Quantity".padEnd(10)+"Line Total");
 
 				for(j in results[i].items){
 					console.log(results[i].items[j].product.padEnd(30)+
-								("$"+results[i].items[j].price).padEnd(7)+
+								("$"+results[i].items[j].price.toFixed(2)).padEnd(10)+
 								(""+results[i].items[j].quantity).padEnd(10)+
 								"$"+results[i].items[j].total);
 				}
 
-				console.log("Order Total: ".padStart(47)+"$"+results[i].orderTotal);
+				console.log("Order Total: $".padStart(50)+results[i].orderTotal.toFixed(2));
 				console.log();
 			}
 		}
