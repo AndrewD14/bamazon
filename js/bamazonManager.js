@@ -85,7 +85,15 @@ var pickSubOption = function(connection, id){
 			});
 		}
 		else if(picked.mainChoice == addNewProduct){
-
+			insertNewProduct(connection)
+			.then(function(result){
+				console.log(result);
+				pickSubOption(connection, id);
+			})
+			.error(function(error){
+				console.log(error);
+				pickSubOption(connection, id);
+			});
 		}
 		else{
 			console.log("Goodbye.");
@@ -100,9 +108,13 @@ var pickSubOption = function(connection, id){
 //gets a list of products
 var displayProducts = function(results){
 	if(results.length > 0){
-		console.log("Item Number\tItem\t\tPrice\t\tStock\t\tDepartment");
+		console.log("Item Number".padEnd(15)+"Item".padEnd(30)+"Price".padEnd(7)+"Stock".padEnd(7)+"Department");
 		for(i in results)
-			console.log(results[i].itemId+"\t\t"+results[i].name+"\t\t"+results[i].price+"\t\t"+results[i].stock+"\t\t"+results[i].departmentName);
+			console.log((""+results[i].itemId).padEnd(15)+
+						results[i].name.padEnd(30)+
+						("$"+results[i].price).padEnd(7)+
+						(""+results[i].stock).padEnd(7)+
+						results[i].departmentName);
 	}
 	else
 		console.log("Nothing to display.");
@@ -192,6 +204,57 @@ var addToInventory = function(connection){
 	});
 }
 
+//gets the user input to insert a new product
+var insertNewProduct = function(connection){
+	return new Promises(function(resolve, reject){
+		connection.getDepartmentInfo()
+		.then(function(result){
+			displayDepartment(result);
+
+			inquirer.prompt([
+				{
+					name: "pName",
+					message: "Enter the product name: "
+				},
+				{
+					name: "price",
+					message: "Enter the price for the new product: ",
+					validate: validateForPositiveFloat
+				},
+				{
+					name: "quantity",
+					message: "Enter the current stock: ",
+					validate: validateForPositiveNumber
+				},
+				{
+					name: "departmentId",
+					message: "Enter the id of the department the product belongs to: ",
+					validate: validateForPositiveNumber
+				}
+			]).then(function(answers){
+				connection.insertNewProduct([answers.pName, parseFloat(answers.price), parseInt(answers.quantity), parseInt(answers.departmentId)])
+				.then(function(result){
+					return resolve(result);
+				})
+				.error(function(error){
+					return reject(error);
+				});
+			});
+		})
+		.error(function(error){
+			return reject(error);
+		});
+	});
+}
+
+//displays the department info for the user to know the id
+var displayDepartment = function(departments){
+	console.log("Department ID\tDepartment Name");
+	for(i in departments){
+		console.log(departments[i].departmentId+"\t\t"+departments[i].name);
+	}
+}
+
 //validates for an integer
 function validateForNumber(amount){
 	if(parseInt(amount))
@@ -209,6 +272,17 @@ function validateForPositiveNumber(amount){
 			return false || "Amount needs to be greater than 0!";
 	else
 		return false || "Amount should be a whole number!";
+}
+
+//validates for a positive float
+function validateForPositiveFloat(amount){
+	if(parseFloat(amount))
+		if(parseFloat(amount) > 0)
+			return true;
+		else
+			return false || "Amount needs to be greater than 0.0!";
+	else
+		return false || "Amount should be a number!";
 }
 
 //exports the function for other files to use

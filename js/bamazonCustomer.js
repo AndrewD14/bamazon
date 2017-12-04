@@ -53,9 +53,9 @@ var displayProducts = function(connection){
 			products = results;
 
 			if(products.length > 0){
-				console.log("Item Number\tItem\t\tPrice");
+				console.log("Item Number".padEnd(15)+"Item".padEnd(30)+"Price");
 				for(i in products)
-					console.log(products[i].itemId+"\t\t"+products[i].name+"\t\t"+products[i].price);
+					console.log((""+products[i].itemId).padEnd(15)+products[i].name.padEnd(30)+"$"+products[i].price);
 			}
 			return resolve("Success");
 		})
@@ -212,13 +212,18 @@ var displayOrders = function(connection, userId){
 
 			for(i in results){
 				console.log("Order Number: "+results[i].orderId+"\t\tOrder Staus: "+results[i].status+"\t\t"+"Order Placed: "+results[i].timeplaced);
-				console.log("Product\t\tPrice\t\tQuantity\tLine Total");
+				console.log("Product".padEnd(30)+"Price".padEnd(7)+"Quantity".padEnd(10)+"Line Total");
 
 				for(j in results[i].items){
-					console.log(results[i].items[j].product+"\t\t"+results[i].items[j].price+"\t\t"+results[i].items[j].quantity+"\t\t"+results[i].items[j].total);
+					console.log(results[i].items[j].product.padEnd(30)+
+								("$"+results[i].items[j].price).padEnd(7)+
+								(""+results[i].items[j].quantity).padEnd(10)+
+								"$"+results[i].items[j].total);
 					if(j == results[i].items.length-1)
 						console.log();
 				}
+
+				console.log("Order Total: $"+results[i].orderTotal);
 			}
 
 			pickSubOption(connection, userId);

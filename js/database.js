@@ -429,6 +429,67 @@ exports.getOrders = function(userId){
 	});
 }
 
+//inserts a new product for a specified department
+exports.insertNewProduct = function(values){
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if(error) return reject(error);
+
+			connection.beginTransaction(function(error){
+				if(error) return reject(error);
+
+				var sql = "INSERT INTO products (product_name,price,stock_quantity,department_id) VALUES (?,?,?,?)";
+				connection.query(mysql.format(sql, values), function (error, results, fields) {
+		  			if(error){
+						connection.rollback(function(){});
+						connection.release();
+						return reject(error);
+					}
+		  		
+		  			connection.commit(function(error){
+						if(error){
+							connection.rollback(function(){});
+							connection.release();
+							return reject(error);
+						}
+					});
+					connection.release();
+		  			return resolve("The new product "+values[0]+" was added successfully.");
+		  		});
+			});
+		});
+	});
+}
+
+//returns a list of the departments
+exports.getDepartmentInfo = function(){
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if(error) return reject(error);
+
+			var getDepartmentInto = "SELECT department_id, department_name, department_desc, over_head_cost "+
+								"FROM departments";
+			connection.query(getDepartmentInto, function (error, results, fields){
+				if(error) return reject(error);
+
+				var departments = [];
+
+				for(i in results){
+					departments.push({
+						departmentId: results[i].department_id,
+						name: results[i].department_name,
+						desc: results[i].department_desc,
+						overHeadCost: results[i].over_head_cost
+					});
+				}
+
+				connection.release();
+				return resolve(departments);
+			});
+		});
+	});
+}
+
 //closes the pool
 exports.closeConnection = function(){
 	pool.end(function (err) {
