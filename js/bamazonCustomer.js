@@ -193,9 +193,11 @@ function validateQuantity(connection, index, order, userId){
 		connection.insertOrder(newOrder, userId)
 		.then(function(result){
 			console.log(result);
+			pickSubOption(connection, userId);
 		})
 		.error(function(error){
 			console.log(error);
+			pickSubOption(connection, userId);
 		});
 	}
 }
