@@ -500,7 +500,7 @@ exports.getProductSalesByDepartment = function(){
 						"round(sum(tot_sales.total_sales), 2) as 'product_sales', "+
 						"round(COALESCE(sum(tot_sales.total_sales),0)-d.over_head_cost, 2) as 'total_profit' "+
 						"FROM departments d "+
-						"INNER JOIN products p "+
+						"LEFT OUTER JOIN products p "+
 						"ON d.department_id = p.department_id "+
 						"LEFT OUTER JOIN (SELECT sale1.item_id, sum(sale1.sales) as 'total_sales' "+
 						"                FROM (SELECT item_id, price, sum(quantity), round(sum(quantity)*price,2) as 'sales' "+
@@ -529,6 +529,34 @@ exports.getProductSalesByDepartment = function(){
 
 				connection.release();
 				return resolve(salesByDepartments);
+			});
+		});
+	});
+}
+
+//inserts a new department
+exports.insertNewDepartment = function(values){
+	return new Promises(function(resolve, reject){
+		pool.getConnection(function(error, connection){
+			if(error) return reject(error);
+
+			connection.beginTransaction(function(error){
+				if(error) return reject(error);
+
+				var sql = "INSERT INTO departments (department_name,department_desc,over_head_cost) VALUES (?,?,?)";
+				connection.query(mysql.format(sql, values), function (error, results, fields) {
+				  if (error) return reject(error);
+
+				  connection.commit(function(error){
+						if(error){
+							connection.rollback(function(){});
+							connection.release();
+							return reject(error);
+						}
+					});
+					connection.release();
+					return resolve("The new department was added.");
+				});
 			});
 		});
 	});
