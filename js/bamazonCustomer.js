@@ -27,6 +27,7 @@ var pickSubOption = function(connection, id){
 		if(picked.mainChoice == viewOrders)
 			displayOrders(connection, id);
 		else if(picked.mainChoice == placeOrders){
+			newOrder = [];
 			displayProducts(connection)
 			.then(function(results){
 				placeOrder(connection, id);

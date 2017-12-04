@@ -60,7 +60,8 @@ var login = function(){
 				}
 		})
 		.catch(function(error){
-			console.log("ERROR: "+error);
+			console.log(error);
+			login();
 		});
 	});
 }
@@ -96,7 +97,8 @@ var signUp = function(){
 			}
 		})
 		.catch(function(error){
-			console.log("ERROR: "+error);
+			console.log(error);
+			signUp();
 		});
 	});
 }

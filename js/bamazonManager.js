@@ -138,7 +138,7 @@ var updateInventory = function(connection){
 							{
 								name: "amount",
 								message: "Enter the new stock quantity for "+results.name+": ",
-								validate: validateForNumber
+								validate: validateForPositiveNumber
 							}
 						]).then(function(answer){
 							connection.updateQuantity(id, parseInt(answer.amount))

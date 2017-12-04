@@ -218,7 +218,8 @@ exports.insertOrder = function(order, user_id){
 								connection.release();
 								return reject(error);
 							}
-
+							
+							connection.release();
 							return resolve("Order was placed. Your order number is: "+order_id);
 						});
 					})
