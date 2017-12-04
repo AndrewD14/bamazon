@@ -41,8 +41,8 @@ node app.js
 
 
 ```
-Username: Manager     & Password: 1234
-Username: Supervisor  & Password: 1234
+*Username: Manager     & Password: 1234
+*Username: Supervisor  & Password: 1234
 ```
 If you want a basic customer, just signup through the app as it is running.
 
@@ -51,19 +51,19 @@ If you want a basic customer, just signup through the app as it is running.
 To add more roles, or users with additional roles, use the following SQL statements:
 
 ```
-To add a role:
+*To add a role:
 INSERT INTO roles
 (role_id, role_type, description)
 VALUES
 (1, 'C', 'Customer');
 
-To add a user:
+*To add a user:
 INSERT INTO users
 (login_id, f_name, l_name, password)
 VALUES
 ('username', 'Billy','Bob','1234');
 
-To give the user a role
+*To give the user a role
 INSERT INTO user_role
 (user_id, role_id)
 VALUES
@@ -72,6 +72,3 @@ VALUES
 
 ## Demo
 You can find a demo video here: https://www.youtube.com/watch?v=dkyIDuxulq8
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
