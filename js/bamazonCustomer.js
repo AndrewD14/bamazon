@@ -225,9 +225,9 @@ var displayOrders = function(connection, userId){
 				console.log("Order Total: ".padStart(47)+"$"+results[i].orderTotal);
 				console.log();
 			}
-
-			pickSubOption(connection, userId);
 		}
+
+		pickSubOption(connection, userId);
 	})
 	.catch(function(error){
 		console.log("ERROR: "+error);
