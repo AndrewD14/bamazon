@@ -66,7 +66,7 @@ var login = function(){
 }
 
 //function for signing up
-var signUp = function(connection){
+var signUp = function(){
 	inquirer.prompt([
 		{
 			name: "username",
